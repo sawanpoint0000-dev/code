@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="hi">
 <head>
@@ -325,6 +326,19 @@
       return text.split('').reverse().join('');
     }
 
+    function makePassword(rawName, phone, symbol) {
+      const pascalName = makePascalName(rawName).replace(/[^a-zA-Z]/g, '') || 'User';
+      const lowerName = makeLowerName(rawName).replace(/[^a-z]/g, '') || 'user';
+      const firstCapital = pascalName.charAt(0).toUpperCase();
+      const lowerLetter = lowerName.charAt(0).toLowerCase();
+      const nameChunk = pascalName.slice(1, 6);
+      const phoneDigits = (phone.slice(-4) || '1234').padEnd(4, '0').slice(0, 4);
+      const special = symbol || '@';
+      const password = `${firstCapital}${lowerLetter}${nameChunk}${phoneDigits}${special}`;
+
+      return password.slice(0, 12);
+    }
+
     function buildCode(rawName, phone) {
       const pascalName = makePascalName(rawName);
       const lowerName = makeLowerName(rawName);
@@ -341,7 +355,7 @@
         return {
           email: `${lowerName}.${lastFour}@outlook.com`,
           userId: `${initials}${lastFour}${firstTwo}`,
-          password: `${pascalName}#${firstTwo}${lastTwo}`,
+          password: makePassword(rawName, phone, '#'),
           phone
         };
       }
@@ -350,7 +364,7 @@
         return {
           email: `${lowerName}_${middleFour}@outlook.com`,
           userId: `${pascalName}_${middleFour}`,
-          password: `${initials}@${lastFour}#${firstTwo}`,
+          password: makePassword(rawName, phone, '@'),
           phone
         };
       }
@@ -359,7 +373,7 @@
         return {
           email: `${lowerName}${lastTwo}${firstTwo}@outlook.com`,
           userId: `${lowerName}${reverseFour}`,
-          password: `${pascalName}${reverseFour}$`,
+          password: makePassword(rawName, phone, '$'),
           phone
         };
       }
@@ -367,7 +381,7 @@
       return {
         email: `${lowerName}${firstFour}${lastTwo}@outlook.com`,
         userId: `${pascalName}${firstFour}`,
-        password: `${pascalName}${lastFour}@`,
+        password: makePassword(rawName, phone, '@'),
         phone
       };
     }
@@ -388,7 +402,7 @@
       passwordOutput.textContent = output.password;
       phoneOutput.textContent = output.phone;
 
-      message.textContent = 'Code ready hai.';
+      message.textContent = `Code ready hai. Password ${output.password.length} characters ka hai.`;
       return output;
     }
 
