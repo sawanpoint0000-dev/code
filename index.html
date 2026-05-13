@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Code Generator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #070b18;
+      --panel: rgba(12, 18, 36, 0.86);
+      --ink: #edf7ff;
+      --muted: #99abc5;
+      --line: rgba(142, 164, 201, 0.25);
+      --cyan: #22d3ee;
+      --blue: #4f7cff;
+      --green: #34d399;
+      --shadow: 0 34px 90px rgba(0, 0, 0, 0.42);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px),
+        radial-gradient(circle at 18% 10%, rgba(34,211,238,0.32), transparent 28rem),
+        radial-gradient(circle at 82% 20%, rgba(251,113,133,0.22), transparent 26rem),
+        radial-gradient(circle at 50% 100%, rgba(79,124,255,0.26), transparent 30rem),
+        var(--bg);
+      background-size: 42px 42px, 42px 42px, auto, auto, auto, auto;
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: min(100%, 720px);
+      background: var(--panel);
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(18px);
+    }
+
+    .topbar {
+      background:
+        linear-gradient(135deg, rgba(34,211,238,0.22), transparent 46%),
+        linear-gradient(90deg, rgba(79,124,255,0.28), rgba(251,113,133,0.18));
+      color: #ffffff;
+      padding: 22px 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: #c8d7ea;
+      font-size: 14px;
+    }
+
+    .content {
+      padding: 24px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    label {
+      display: block;
+      margin: 0 0 8px;
+      font-weight: 700;
+      color: #c8d7ea;
+    }
+
+    input {
+      width: 100%;
+      height: 48px;
+      border: 1px solid #bac7d8;
+      border-radius: 8px;
+      padding: 0 13px;
+      font-size: 16px;
+      color: #ffffff;
+      background: rgba(3, 8, 23, 0.62);
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 4px rgba(34,211,238,0.16);
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .feature-btn {
+      min-height: 48px;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.74);
+      color: #c8d7ea;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .feature-btn.active {
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      color: #06111f;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .main-btn {
+      min-height: 48px;
+      border: 0;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .generate {
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      color: #06111f;
+    }
+
+    .copy-all {
+      background: linear-gradient(135deg, var(--green), #10b981);
+      color: #052014;
+    }
+
+    .output {
+      margin-top: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(3, 8, 23, 0.54);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 110px 1fr 76px;
+      gap: 10px;
+      padding: 13px;
+      border-bottom: 1px solid var(--line);
+      align-items: center;
+    }
+
+    .row:last-child {
+      border-bottom: 0;
+    }
+
+    .key {
+      font-weight: 800;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .value {
+      overflow-wrap: anywhere;
+      font-weight: 800;
+      color: #f8fbff;
+    }
+
+    .small-copy {
+      min-height: 36px;
+      border: 1px solid rgba(34, 211, 238, 0.46);
+      border-radius: 7px;
+      background: rgba(34, 211, 238, 0.1);
+      color: #9decff;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .message {
+      min-height: 22px;
+      margin-top: 13px;
+      color: #86efac;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    @media (max-width: 680px) {
+      .field-grid,
+      .features,
+      .actions,
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      .content {
+        padding: 18px;
+      }
+
+      .small-copy {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <h1>Code Generator</h1>
+      <p class="subtitle">Name aur phone number se email, user id, password generate karo.</p>
+    </header>
+
+    <section class="content">
+      <div class="field-grid">
+        <div>
+          <label for="name">Enter Name</label>
+          <input id="name" type="text" value="Sawan Kumar" placeholder="Enter name">
+        </div>
+
+        <div>
+          <label for="number">Enter Number</label>
+          <input id="number" type="tel" value="9078977867" placeholder="Enter phone number" maxlength="10">
+        </div>
+      </div>
+
+      <div class="features">
+        <button class="feature-btn active" type="button" data-mode="normal">Normal</button>
+        <button class="feature-btn" type="button" data-mode="pro">Pro ID</button>
+        <button class="feature-btn" type="button" data-mode="secure">Secure</button>
+        <button class="feature-btn" type="button" data-mode="short">Short</button>
+      </div>
+
+      <div class="actions">
+        <button class="main-btn generate" id="generateBtn" type="button">Generator</button>
+        <button class="main-btn copy-all" id="copyBtn" type="button">Copy All</button>
+      </div>
+
+      <section class="output">
+        <div class="row">
+          <span class="key">User Email</span>
+          <span class="value" id="email">-</span>
+          <button class="small-copy" type="button" data-copy-target="email">Copy</button>
+        </div>
+
+        <div class="row">
+          <span class="key">User ID</span>
+          <span class="value" id="userId">-</span>
+          <button class="small-copy" type="button" data-copy-target="userId">Copy</button>
+        </div>
+
+        <div class="row">
+          <span class="key">User PS</span>
+          <span class="value" id="password">-</span>
+          <button class="small-copy" type="button" data-copy-target="password">Copy</button>
+        </div>
+
+        <div class="row">
+          <span class="key">Phone No.</span>
+          <span class="value" id="phone">-</span>
+          <button class="small-copy" type="button" data-copy-target="phone">Copy</button>
+        </div>
+      </section>
+
+      <div class="message" id="message"></div>
+    </section>
+  </main>
+
+  <script>
+    const nameInput = document.getElementById('name');
+    const numberInput = document.getElementById('number');
+    const emailOutput = document.getElementById('email');
+    const userIdOutput = document.getElementById('userId');
+    const passwordOutput = document.getElementById('password');
+    const phoneOutput = document.getElementById('phone');
+    const message = document.getElementById('message');
+    const generateBtn = document.getElementById('generateBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const featureButtons = document.querySelectorAll('[data-mode]');
+    const singleCopyButtons = document.querySelectorAll('[data-copy-target]');
+
+    let activeMode = 'normal';
+
+    function onlyDigits(value) {
+      return value.replace(/\D/g, '');
+    }
+
+    function makeParts(name) {
+      return name.trim().split(/\s+/).filter(Boolean);
+    }
+
+    function makePascalName(name) {
+      return makeParts(name)
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+        .join('');
+    }
+
+    function makeLowerName(name) {
+      return makeParts(name).join('').toLowerCase();
+    }
+
+    function makeInitials(name) {
+      return makeParts(name).map(part => part.charAt(0).toUpperCase()).join('');
+    }
+
+    function reverseText(text) {
+      return text.split('').reverse().join('');
+    }
+
+    function buildCode(rawName, phone) {
+      const pascalName = makePascalName(rawName);
+      const lowerName = makeLowerName(rawName);
+      const initials = makeInitials(rawName);
+
+      const firstTwo = phone.slice(0, 2);
+      const firstFour = phone.slice(0, 4);
+      const middleFour = phone.slice(2, 6) || phone;
+      const lastTwo = phone.slice(-2);
+      const lastFour = phone.slice(-4);
+      const reverseFour = reverseText(lastFour);
+
+      if (activeMode === 'pro') {
+        return {
+          email: `${lowerName}.${lastFour}@outlook.com`,
+          userId: `${initials}${lastFour}${firstTwo}`,
+          password: `${pascalName}#${firstTwo}${lastTwo}`,
+          phone
+        };
+      }
+
+      if (activeMode === 'secure') {
+        return {
+          email: `${lowerName}_${middleFour}@outlook.com`,
+          userId: `${pascalName}_${middleFour}`,
+          password: `${initials}@${lastFour}#${firstTwo}`,
+          phone
+        };
+      }
+
+      if (activeMode === 'short') {
+        return {
+          email: `${lowerName}${lastTwo}${firstTwo}@outlook.com`,
+          userId: `${lowerName}${reverseFour}`,
+          password: `${pascalName}${reverseFour}$`,
+          phone
+        };
+      }
+
+      return {
+        email: `${lowerName}${firstFour}${lastTwo}@outlook.com`,
+        userId: `${pascalName}${firstFour}`,
+        password: `${pascalName}${lastFour}@`,
+        phone
+      };
+    }
+
+    function generateCode() {
+      const rawName = nameInput.value.trim();
+      const phone = onlyDigits(numberInput.value);
+
+      if (!rawName || !phone) {
+        message.textContent = 'Name aur number dono enter karo.';
+        return null;
+      }
+
+      const output = buildCode(rawName, phone);
+
+      emailOutput.textContent = output.email;
+      userIdOutput.textContent = output.userId;
+      passwordOutput.textContent = output.password;
+      phoneOutput.textContent = output.phone;
+
+      message.textContent = 'Code ready hai.';
+      return output;
+    }
+
+    function getCurrentOutput() {
+      if (emailOutput.textContent === '-') {
+        return generateCode();
+      }
+
+      return {
+        email: emailOutput.textContent,
+        userId: userIdOutput.textContent,
+        password: passwordOutput.textContent,
+        phone: phoneOutput.textContent
+      };
+    }
+
+    async function copyAll() {
+      const output = getCurrentOutput();
+      if (!output) return;
+
+      const finalText = [
+        `user id ${output.userId}`,
+        `user pass ${output.password}`,
+        `user no. ${output.phone}`,
+        `user email ${output.email}`
+      ].join('\n');
+
+      const copied = await copyText(finalText);
+      message.textContent = copied ? 'Sab copy ho gaya.' : 'Copy nahi hua.';
+    }
+
+    async function copySingle(targetId) {
+      if (document.getElementById(targetId).textContent === '-') {
+        generateCode();
+      }
+
+      const text = document.getElementById(targetId).textContent;
+      const copied = await copyText(text);
+      message.textContent = copied ? 'Copy ho gaya.' : 'Copy nahi hua.';
+    }
+
+    async function copyText(text) {
+      try {
+        if (navigator.clipboard) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+        return copyWithTextArea(text);
+      } catch (error) {
+        return copyWithTextArea(text);
+      }
+    }
+
+    function copyWithTextArea(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const copied = document.execCommand('copy');
+      textarea.remove();
+      return copied;
+    }
+
+    numberInput.addEventListener('input', () => {
+      numberInput.value = onlyDigits(numberInput.value).slice(0, 10);
+    });
+
+    featureButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        activeMode = button.dataset.mode;
+
+        featureButtons.forEach(item => {
+          item.classList.remove('active');
+        });
+
+        button.classList.add('active');
+        generateCode();
+      });
+    });
+
+    generateBtn.addEventListener('click', generateCode);
+    copyBtn.addEventListener('click', copyAll);
+
+    singleCopyButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        copySingle(button.dataset.copyTarget);
+      });
+    });
+
+    generateCode();
+  </script>
+</body>
+</html>
