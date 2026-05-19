@@ -420,19 +420,19 @@
     }
 
     async function copyAll() {
-      const output = getCurrentOutput();
-      if (!output) return;
+  const output = getCurrentOutput();
+  if (!output) return;
 
-      const finalText = [
-        `user id ${output.userId}`,
-        `user pass ${output.password}`,
-        `user no. ${output.phone}`,
-        `user email ${output.email}`
-      ].join('\n');
+  const finalText = [
+    output.userId,
+    output.password,
+    output.phone,
+    output.email
+  ].join('\n');
 
-      const copied = await copyText(finalText);
-      message.textContent = copied ? 'Sab copy ho gaya.' : 'Copy nahi hua.';
-    }
+  const copied = await copyText(finalText);
+  message.textContent = copied ? 'Sab copy ho gaya.' : 'Copy nahi hua.';
+}
 
     async function copySingle(targetId) {
       if (document.getElementById(targetId).textContent === '-') {
