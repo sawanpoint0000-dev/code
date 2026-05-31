@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Premium Cyber Code Generator v2.5</title>
+  <title>Premium Cyber Code Generator v3.0</title>
   <style>
     * {
       box-sizing: border-box;
@@ -471,7 +471,7 @@
       return text.split('').reverse().join('');
     }
 
-    // Guarantees Rule Match: 1x Caps, 1x Small, 1x Digit, 1x Special Character 
+    // Strictly guarantees: Capital + Small + Digit + Special Character
     function makeStrictPassword(prefix, body, numbers, symbol) {
       let caps = prefix.replace(/[^A-Z]/g, '') || 'K';
       let smalls = body.replace(/[^a-z]/g, '') || 'usr';
@@ -510,7 +510,7 @@
         case 'secure':
           return {
             email: `${lowerName}_${middleFour}@outlook.com`,
-            userId: `${pascalName}_${middleFour}`,
+            userId: `${pascalName}${middleFour}`,
             password: makeStrictPassword(pascalName, 'sec', phone, '@'),
             phone
           };
@@ -531,49 +531,49 @@
         case 'numeric':
           return {
             email: `${firstFour}${lastFour}@outlook.com`,
-            userId: `num_${phone.slice(-6)}`,
+            userId: `num${phone.slice(-6)}`,
             password: makeStrictPassword(initials, 'num', phone, '#'),
             phone
           };
         case 'premium':
           return {
             email: `${lowerName}.vip@outlook.com`,
-            userId: `VIP_${pascalName}`,
+            userId: `VIP${pascalName}`,
             password: makeStrictPassword('VIP', lowerName, lastFour, '$'),
             phone
           };
         case 'minimal':
           return {
             email: `${initials.toLowerCase()}${lastTwo}@outlook.com`,
-            userId: `${initials.toLowerCase()}_${lastTwo}`,
+            userId: `${initials.toLowerCase()}${lastTwo}`,
             password: makeStrictPassword(initials, 'min', lastTwo, '*'),
             phone
           };
         case 'gaming':
           return {
             email: `${lowerName}_gg@outlook.com`,
-            userId: `${pascalName}_PRO`,
+            userId: `${pascalName}PRO`,
             password: makeStrictPassword('GG', lowerName, reverseFour, '!'),
             phone
           };
         case 'enterprise':
           return {
             email: `${lowerName}@corp.outlook.com`,
-            userId: `emp_${lowerName}_${lastTwo}`,
+            userId: `emp${lowerName}${lastTwo}`,
             password: makeStrictPassword('HQ', lowerName, lastFour, '#'),
             phone
           };
         case 'developer':
           return {
             email: `${snakeName}_dev@outlook.com`,
-            userId: `dev_${lowerName}`,
+            userId: `dev${lowerName}`,
             password: makeStrictPassword('DEV', 'git', lastTwo, '!'),
             phone
           };
         case 'vintage':
           return {
             email: `classic.${lowerName}@outlook.com`,
-            userId: `the_${lowerName}_90s`,
+            userId: `the${lowerName}90s`,
             password: makeStrictPassword('OLD', lowerName, middleFour, '_'),
             phone
           };
@@ -587,14 +587,14 @@
         case 'cyber':
           return {
             email: `${lowerName}.nexus@outlook.com`,
-            userId: `cyber_${pascalName}`,
+            userId: `cyber${pascalName}`,
             password: makeStrictPassword('CYB', 'core', lastFour, '%'),
             phone
           };
         case 'hybrid':
           return {
             email: `${reverseFour}${lowerName}${firstTwo}@outlook.com`,
-            userId: `${lastTwo}_${pascalName}_${firstTwo}`,
+            userId: `${lastTwo}${pascalName}${firstTwo}`,
             password: makeStrictPassword(initials, 'mix', reversePhone, '!'),
             phone
           };
