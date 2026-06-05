@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Premium Cyber Code Generator v4.0</title>
+  <title>Premium Cyber Code Generator v5.2</title>
   <style>
     * {
       box-sizing: border-box;
@@ -397,21 +397,21 @@
 
       <div class="section-title">Select Operational Template</div>
       <div class="features">
-        <button class="feature-btn active" type="button" data-mode="normal">Normal</button>
-        <button class="feature-btn" type="button" data-mode="pro">Pro ID</button>
-        <button class="feature-btn" type="button" data-mode="secure">Secure</button>
-        <button class="feature-btn" type="button" data-mode="short">Short</button>
-        <button class="feature-btn" type="button" data-mode="alpha">Alpha</button>
-        <button class="feature-btn" type="button" data-mode="numeric">Numeric</button>
-        <button class="feature-btn" type="button" data-mode="premium">Premium</button>
-        <button class="feature-btn" type="button" data-mode="minimal">Minimal</button>
-        <button class="feature-btn" type="button" data-mode="gaming">Gaming</button>
-        <button class="feature-btn" type="button" data-mode="enterprise">Enterprise</button>
-        <button class="feature-btn" type="button" data-mode="developer">Developer</button>
-        <button class="feature-btn" type="button" data-mode="vintage">Vintage</button>
-        <button class="feature-btn" type="button" data-mode="crypto">Crypto</button>
-        <button class="feature-btn" type="button" data-mode="cyber">Cyber</button>
-        <button class="feature-btn" type="button" data-mode="hybrid">Hybrid</button>
+        <button class="feature-btn active" type="button" data-mode="1">Template 1</button>
+        <button class="feature-btn" type="button" data-mode="2">Template 2</button>
+        <button class="feature-btn" type="button" data-mode="3">Template 3</button>
+        <button class="feature-btn" type="button" data-mode="4">Template 4</button>
+        <button class="feature-btn" type="button" data-mode="5">Template 5</button>
+        <button class="feature-btn" type="button" data-mode="6">Template 6</button>
+        <button class="feature-btn" type="button" data-mode="7">Template 7</button>
+        <button class="feature-btn" type="button" data-mode="8">Template 8</button>
+        <button class="feature-btn" type="button" data-mode="9">Template 9</button>
+        <button class="feature-btn" type="button" data-mode="10">Template 10</button>
+        <button class="feature-btn" type="button" data-mode="11">Template 11</button>
+        <button class="feature-btn" type="button" data-mode="12">Template 12</button>
+        <button class="feature-btn" type="button" data-mode="13">Template 13</button>
+        <button class="feature-btn" type="button" data-mode="14">Template 14</button>
+        <button class="feature-btn" type="button" data-mode="15">Template 15</button>
       </div>
 
       <div class="actions">
@@ -478,7 +478,7 @@
     const strBar = document.getElementById('strBar');
     const strText = document.getElementById('strText');
 
-    let activeMode = 'normal';
+    let activeMode = '1';
 
     function onlyDigits(value) {
       return value.replace(/\D/g, '');
@@ -488,159 +488,179 @@
       return name.trim().split(/\s+/).filter(Boolean);
     }
 
-    function makePascalName(name) {
-      return makeParts(name)
-        .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-        .join('');
+    // New Strict Rule: At least 5 letters FIRST, then digits, maximum 12 total. No special characters.
+    function cleanAndBoundUserId(lettersPart, digitsPart) {
+      // Step 1: Clean and extract only letters
+      let cleanLetters = lettersPart.replace(/[^A-Za-z]/g, '');
+      
+      // Step 2: Ensure letters part is at least 5 characters long
+      if (cleanLetters.length < 5) {
+        cleanLetters = (cleanLetters + "Cyber").slice(0, 5);
+      }
+      
+      // Step 3: Clean and extract digits part
+      let cleanDigits = digitsPart.replace(/[^0-9]/g, '');
+      if (!cleanDigits) {
+        cleanDigits = "786";
+      }
+
+      // Step 4: Combine (Letters first, then digits) and limit to max 12
+      let combined = cleanLetters + cleanDigits;
+      return combined.slice(0, 12);
     }
 
-    function makeLowerName(name) {
-      return makeParts(name).join('').toLowerCase();
+    // Email Customizer (No dots, No underscores, Starts with Letters)
+    function formatSafeEmail(prefix, suffix, domain = "outlook.com") {
+      let cleanPrefix = prefix.replace(/[^A-Za-z0-9]/g, '');
+      let cleanSuffix = suffix.replace(/[^A-Za-z0-9]/g, '');
+      
+      if (/^[0-9]/.test(cleanPrefix)) {
+        cleanPrefix = "id" + cleanPrefix;
+      }
+      
+      return `${cleanPrefix}${cleanSuffix}@${domain}`.toLowerCase();
     }
 
-    function makeSnakeName(name) {
-      return makeParts(name).join('_').toLowerCase();
-    }
-
-    function makeInitials(name) {
-      return makeParts(name).map(part => part.charAt(0).toUpperCase()).join('');
-    }
-
-    function reverseText(text) {
-      return text.split('').reverse().join('');
-    }
-
-    function makeStrictPassword(prefix, body, numbers, symbol) {
-      let caps = prefix.replace(/[^A-Z]/g, '') || 'K';
-      let smalls = body.replace(/[^a-z]/g, '') || 'usr';
-      let digits = numbers.replace(/[^0-9]/g, '') || '786';
+    // Password Strict Limits (Min 8, Max 10 Characters, Mix of Caps, Lower, Special & Digits)
+    function generateStrictPassword(namePart, numPart, symbol) {
+      let caps = namePart.toUpperCase().replace(/[^A-Z]/g, '') || 'K';
+      let smalls = namePart.toLowerCase().replace(/[^a-z]/g, '') || 'usr';
+      let digits = numPart.replace(/[^0-9]/g, '') || '786';
       let sym = symbol || '@';
 
-      if(caps.length === 0) caps = 'S';
-      if(smalls.length === 0) smalls = 'am';
-      if(digits.length === 0) digits = '90';
+      // Base Structure: 2 Caps + 2 Smalls + 1 Symbol
+      let base = caps.slice(0, 2) + smalls.slice(0, 2) + sym;
+      let remainingLength = 9 - base.length; // Target 9 safely within 8-10 range
+      base += digits.slice(0, remainingLength);
 
-      return `${caps.slice(0,3)}${smalls.slice(0,4)}${digits.slice(0,4)}${sym}`;
+      if (base.length < 8) {
+        base += "7";
+      }
+      return base.slice(0, 10); // Cut absolute maximum at 10
     }
 
     function buildCode(rawName, phone) {
-      const pascalName = makePascalName(rawName) || 'User';
-      const lowerName = makeLowerName(rawName) || 'user';
-      const snakeName = makeSnakeName(rawName) || 'user';
-      const initials = makeInitials(rawName) || 'UR';
-
+      const parts = makeParts(rawName);
+      const firstName = parts[0] || 'User';
+      const lastName = parts[1] || 'Vip';
+      
       const firstTwo = phone.slice(0, 2) || '99';
       const firstFour = phone.slice(0, 4) || '9999';
       const middleFour = phone.slice(2, 6) || '8888';
       const lastTwo = phone.slice(-2) || '00';
       const lastFour = phone.slice(-4) || '0000';
-      const reverseFour = reverseText(lastFour);
-      const reversePhone = reverseText(phone).slice(0, 4);
 
       switch (activeMode) {
-        case 'pro':
+        case '1':
           return {
-            email: `${lowerName}.${lastFour}@outlook.com`,
-            userId: `${initials}${lastFour}${firstTwo}`,
-            password: makeStrictPassword(initials, lowerName, lastFour, '#'),
+            email: formatSafeEmail(firstName, lastFour),
+            userId: cleanAndBoundUserId(firstName, lastTwo),
+            password: generateStrictPassword(firstName, lastFour, '@%'),
             phone
           };
-        case 'secure':
+        case '2':
           return {
-            email: `${lowerName}_${middleFour}@outlook.com`,
-            userId: `${pascalName}${middleFour}`,
-            password: makeStrictPassword(pascalName, 'sec', phone, '@'),
+            email: formatSafeEmail(lastName, firstTwo),
+            userId: cleanAndBoundUserId(lastName, lastFour),
+            password: generateStrictPassword(lastName, firstFour, '%$'),
             phone
           };
-        case 'short':
+        case '3':
           return {
-            email: `${lowerName}${lastTwo}${firstTwo}@outlook.com`,
-            userId: `${lowerName}${reverseFour}`,
-            password: makeStrictPassword(initials, 'sh', lastTwo + firstTwo, '$'),
+            email: formatSafeEmail(firstName + lastName, lastTwo),
+            userId: cleanAndBoundUserId(firstName + lastName, middleFour),
+            password: generateStrictPassword(lastName, middleFour, '$@_'),
             phone
           };
-        case 'alpha':
+        case '4':
           return {
-            email: `${snakeName}.alpha@outlook.com`,
-            userId: `Alpha${pascalName}`,
-            password: makeStrictPassword(pascalName, 'alpha', lastFour, '!'),
+            email: formatSafeEmail("id" + firstName, middleFour),
+            userId: cleanAndBoundUserId(lastName + firstName, firstTwo),
+            password: generateStrictPassword(firstName, lastTwo, '!$@'),
             phone
           };
-        case 'numeric':
+        case '5':
           return {
-            email: `${firstFour}${lastFour}@outlook.com`,
-            userId: `num${phone.slice(-6)}`,
-            password: makeStrictPassword(initials, 'num', phone, '#'),
+            email: formatSafeEmail(lastName + firstName, lastTwo),
+            userId: cleanAndBoundUserId("Admin" + firstName, lastFour),
+            password: generateStrictPassword(firstName + "X", lastFour, '%@!'),
             phone
           };
-        case 'premium':
+        case '6':
           return {
-            email: `${lowerName}.vip@outlook.com`,
-            userId: `VIP${pascalName}`,
-            password: makeStrictPassword('VIP', lowerName, lastFour, '$'),
+            email: formatSafeEmail("cyber" + firstName, lastTwo),
+            userId: cleanAndBoundUserId(lastName + "Vip", middleFour),
+            password: generateStrictPassword("Cyb" + lastName, firstFour, '&'),
             phone
           };
-        case 'minimal':
+        case '7':
           return {
-            email: `${initials.toLowerCase()}${lastTwo}@outlook.com`,
-            userId: `${initials.toLowerCase()}${lastTwo}`,
-            password: makeStrictPassword(initials, 'min', lastTwo, '*'),
+            email: formatSafeEmail(firstName + "pro", lastFour),
+            userId: cleanAndBoundUserId("ProUser" + firstName, lastTwo),
+            password: generateStrictPassword(firstName, middleFour, '*'),
             phone
           };
-        case 'gaming':
+        case '8':
           return {
-            email: `${lowerName}_gg@outlook.com`,
-            userId: `${pascalName}PRO`,
-            password: makeStrictPassword('GG', lowerName, reverseFour, '!'),
+            email: formatSafeEmail(lastName + "zone", firstFour),
+            userId: cleanAndBoundUserId(firstName + "Zone", lastFour),
+            password: generateStrictPassword("Zone" + firstName, lastTwo, '?'),
             phone
           };
-        case 'enterprise':
+        case '9':
           return {
-            email: `${lowerName}@corp.outlook.com`,
-            userId: `emp${lowerName}${lastTwo}`,
-            password: makeStrictPassword('HQ', lowerName, lastFour, '#'),
+            email: formatSafeEmail("vibe" + lastName, middleFour),
+            userId: cleanAndBoundUserId("Gamer" + lastName, firstTwo),
+            password: generateStrictPassword("Gamer", lastFour, '='),
             phone
           };
-        case 'developer':
+        case '10':
           return {
-            email: `${snakeName}_dev@outlook.com`,
-            userId: `dev${lowerName}`,
-            password: makeStrictPassword('DEV', 'git', lastTwo, '!'),
+            email: formatSafeEmail(firstName + "core", lastTwo),
+            userId: cleanAndBoundUserId("Core" + firstName, middleFour),
+            password: generateStrictPassword("Core" + lastName, middleFour, '+'),
             phone
           };
-        case 'vintage':
+        case '11':
           return {
-            email: `classic.${lowerName}@outlook.com`,
-            userId: `the${lowerName}90s`,
-            password: makeStrictPassword('OLD', lowerName, middleFour, '_'),
+            email: formatSafeEmail("net" + lastName, firstTwo),
+            userId: cleanAndBoundUserId("NetUser" + lastName, lastFour),
+            password: generateStrictPassword("Net", lastFour, '^'),
             phone
           };
-        case 'crypto':
+        case '12':
           return {
-            email: `${lowerName}.eth@outlook.com`,
-            userId: `X0x${initials}${lastFour}`,
-            password: makeStrictPassword('HEX', 'eth', lastFour, '$'),
+            email: formatSafeEmail(firstName + "hq", middleFour),
+            userId: cleanAndBoundUserId("HqBoss" + firstName, lastTwo),
+            password: generateStrictPassword("Corp" + firstName, lastTwo, '~'),
             phone
           };
-        case 'cyber':
+        case '13':
           return {
-            email: `${lowerName}.nexus@outlook.com`,
-            userId: `cyber${pascalName}`,
-            password: makeStrictPassword('CYB', 'core', lastFour, '%'),
+            email: formatSafeEmail("sky" + firstName, lastFour),
+            userId: cleanAndBoundUserId("SkyLine" + lastName, firstTwo),
+            password: generateStrictPassword("Sky", firstFour, '/'),
             phone
           };
-        case 'hybrid':
+        case '14':
           return {
-            email: `${reverseFour}${lowerName}${firstTwo}@outlook.com`,
-            userId: `${pascalName}${lastTwo}${firstTwo}`,
-            password: makeStrictPassword(initials, 'mix', reversePhone, '!'),
+            email: formatSafeEmail(lastName + "max", firstFour),
+            userId: cleanAndBoundUserId("MaxUser" + firstName, middleFour),
+            password: generateStrictPassword("Max" + lastName, middleFour, ':'),
+            phone
+          };
+        case '15':
+          return {
+            email: formatSafeEmail("prime" + firstName, lastTwo),
+            userId: cleanAndBoundUserId("Prime" + lastName, lastFour),
+            password: generateStrictPassword("Prime", lastFour, '@'),
             phone
           };
         default:
           return {
-            email: `${lowerName}${firstFour}${lastTwo}@outlook.com`,
-            userId: `${pascalName}${firstFour}`,
-            password: makeStrictPassword(pascalName, 'norm', lastFour, '@'),
+            email: formatSafeEmail(firstName, lastFour),
+            userId: cleanAndBoundUserId(firstName, lastTwo),
+            password: generateStrictPassword(firstName, lastFour, '#'),
             phone
           };
       }
@@ -697,7 +717,7 @@
       bulkText.value = `${output.userId}\n${output.password}\n${output.phone}\n${output.email}`;
       updateStrengthMeter(output.password);
 
-      message.textContent = `⚡ System Status: [${activeMode.toUpperCase()}] mode compiled successfully.`;
+      message.textContent = `⚡ System Status: [Template ${activeMode}] compiled successfully.`;
       message.style.color = 'var(--green)';
       return output;
     }
